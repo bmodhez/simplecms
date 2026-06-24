@@ -2,8 +2,14 @@ import Link from "next/link";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { getAllCategories } from "@/actions/categories";
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
 async function PublicNav() {
-  const categories = await getAllCategories().catch(() => []);
+  const [categories, session] = await Promise.all([
+    getAllCategories().catch(() => []),
+    getServerSession(authOptions),
+  ]);
 
   return (
     <header className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-3 md:px-4">
@@ -32,7 +38,7 @@ async function PublicNav() {
           href="/admin"
           className="flex items-center gap-1.5 md:gap-2 px-4 md:px-5 py-2 md:py-2.5 text-xs md:text-sm font-semibold bg-slate-900 text-white rounded-full hover:bg-brand-600 hover:shadow-brand transition-all duration-300 group"
         >
-          <span>Sign In</span>
+          <span>{session ? "Dashboard" : "Sign In"}</span>
           <ArrowRight className="h-3 w-3 md:h-4 md:w-4 group-hover:translate-x-1 transition-transform" />
         </Link>
       </div>
