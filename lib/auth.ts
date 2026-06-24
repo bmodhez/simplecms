@@ -16,8 +16,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        const emailLower = credentials.email.toLowerCase();
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: emailLower },
         });
 
         if (!user || !user.password) {
