@@ -15,15 +15,14 @@ export async function getPages(
     ? { title: { contains: search, mode: "insensitive" as const } }
     : {};
 
-  const [pages, total] = await Promise.all([
-    prisma.page.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    prisma.page.count({ where }),
-  ]);
+  // Execute sequentially to prevent Neon connection pool exhaustion
+  const pages = await prisma.page.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
+  });
+  const total = await prisma.page.count({ where });
 
   return {
     success: true,

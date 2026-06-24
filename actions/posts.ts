@@ -21,16 +21,15 @@ export async function getPosts(
       }
     : {};
 
-  const [posts, total] = await Promise.all([
-    prisma.post.findMany({
-      where,
-      include: { category: true },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    prisma.post.count({ where }),
-  ]);
+  // Execute sequentially to prevent Neon connection pool exhaustion
+  const posts = await prisma.post.findMany({
+    where,
+    include: { category: true },
+    orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
+  });
+  const total = await prisma.post.count({ where });
 
   return {
     success: true,
@@ -166,16 +165,15 @@ export async function getPublishedPosts(
     where.category = { slug: categorySlug };
   }
 
-  const [posts, total] = await Promise.all([
-    prisma.post.findMany({
-      where,
-      include: { category: true },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    prisma.post.count({ where }),
-  ]);
+  // Execute sequentially to prevent Neon connection pool exhaustion
+  const posts = await prisma.post.findMany({
+    where,
+    include: { category: true },
+    orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
+  });
+  const total = await prisma.post.count({ where });
 
   return {
     items: posts,

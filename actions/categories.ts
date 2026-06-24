@@ -15,16 +15,15 @@ export async function getCategories(
     ? { name: { contains: search, mode: "insensitive" as const } }
     : {};
 
-  const [categories, total] = await Promise.all([
-    prisma.category.findMany({
-      where,
-      include: { _count: { select: { posts: true } } },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    prisma.category.count({ where }),
-  ]);
+  // Execute sequentially to prevent Neon connection pool exhaustion
+  const categories = await prisma.category.findMany({
+    where,
+    include: { _count: { select: { posts: true } } },
+    orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
+  });
+  const total = await prisma.category.count({ where });
 
   return {
     success: true,

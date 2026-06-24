@@ -129,10 +129,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const search = params.search || "";
   const category = params.category || "";
 
-  const [{ items: posts, meta }, categories] = await Promise.all([
-    getPublishedPosts(currentPage, 9, search, category),
-    getAllCategories(),
-  ]);
+  // Execute sequentially to prevent Neon connection pool exhaustion
+  const { items: posts, meta } = await getPublishedPosts(currentPage, 9, search, category);
+  const categories = await getAllCategories();
 
   const featuredPost = !search && !category && currentPage === 1 ? posts[0] : null;
   const gridPosts = featuredPost ? posts.slice(1) : posts;
