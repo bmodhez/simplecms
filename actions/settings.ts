@@ -37,19 +37,18 @@ export async function updateSiteSettings(data: SettingsInput) {
 }
 
 export async function getDashboardStats() {
-  const [totalPosts, totalPages, totalCategories, publishedPosts, draftPosts, recentPosts] =
-    await Promise.all([
-      prisma.post.count(),
-      prisma.page.count(),
-      prisma.category.count(),
-      prisma.post.count({ where: { published: true } }),
-      prisma.post.count({ where: { published: false } }),
-      prisma.post.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        include: { category: true },
-      }),
-    ]);
+  // Execute queries sequentially instead of Promise.all to prevent 
+  // Neon free-tier connection pool exhaustion (max 15 connections)
+  const totalPosts = await prisma.post.count();
+  const totalPages = await prisma.page.count();
+  const totalCategories = await prisma.category.count();
+  const publishedPosts = await prisma.post.count({ where: { published: true } });
+  const draftPosts = await prisma.post.count({ where: { published: false } });
+  const recentPosts = await prisma.post.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: { category: true },
+  });
 
   return {
     totalPosts,
