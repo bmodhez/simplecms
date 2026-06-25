@@ -1,4 +1,4 @@
-# 🚀 PremiumCMS
+# 🚀 SimpleCMS
 
 A production-grade, premium headless CMS built with **Next.js 15**, **Prisma**, **PostgreSQL**, and **Tailwind CSS**.
 
